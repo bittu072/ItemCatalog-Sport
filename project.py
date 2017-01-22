@@ -266,8 +266,72 @@ def gdisconnect():
 
 @app.route('/sport')
 def showSports():
-    print ""
+    sports = session.query(Sport).order_by(asc(Sport.name))
+    if 'username' not in login_session:
+        return render_template('sport.html', sports=sports)
+    else:
+        return render_template('sport.html', sports=sports)
 
+
+@app.route('/sport/new/', methods=['GET', 'POST'])
+def newSport():
+    if 'username' not in login_session:
+        return redirect('/login')
+    if request.method == 'POST':
+        newSport = Sport(name=request.form['name'], user_id=login_session['user_id'])
+        session.add(newSport)
+        flash('New Sport %s Successfully added' % newSport.name)
+        session.commit()
+        return redirect(url_for('showSports'))
+    else:
+        return render_template('newsport.html')
+
+
+@app.route('/sport/<int:sport_id>/')
+@app.route('/sport/<int:sport_id>/league')
+def showLeagues(sport_id):
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    leagues = session.query(League).filter_by(sport_id=sport_id).all()
+    creator = getUserInfo(sport.user_id)
+
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        return render_template('publicleague.html', leagues=leagues,
+                               sport=sport, creator=creator)
+    else:
+        return render_template('league.html', leagues=leagues,
+                               sport=sport, creator=creator)
+
+
+@app.route('/sport/<int:sport_id>/league/new', methods=['GET', 'POST'])
+def newLeague(sport_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    if request.method == 'POST':
+        print "in"
+        newLeague = League(name=request.form['leaguename'], sport_id = sport_id,
+                          user_id=login_session['user_id'])
+        session.add(newLeague)
+        flash('New Sport %s Successfully added' % newLeague.name)
+        session.commit()
+        return redirect(url_for('showLeagues', sport_id=sport_id))
+    else:
+        return render_template('newleague.html', sport_id=sport_id)
+
+
+@app.route('/sport/<int:sport_id>/league/<int:league_id>/')
+@app.route('/sport/<int:sport_id>/league/<int:league_id>/team')
+def showTeams(sport_id, league_id):
+    # sport = session.query(Sport).filter_by(id=sport_id).one()
+    # leagues = session.query(league).filter_by(sport_id=sport_id).all()
+    # creator = getUserInfo(sport.user_id)
+    #
+    # if 'username' not in login_session or creator.id != login_session['user_id']:
+    #     return render_template('publicleague.html', leagues=leagues,
+    #                            sport=sport, creator=creator)
+    # else:
+    #     return render_template('league.html', leagues=leagues,
+    #                            sport=sport, creator=creator)
+    return render_template('temp.html')
 
 # Disconnect based on provider
 @app.route('/disconnect')
