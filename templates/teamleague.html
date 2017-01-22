@@ -6,10 +6,12 @@
     </head>
 
     <body>
-        <h2> {{sport.name}} </h2>
+        <h1> {{league.name}}
+        <h4> {{sport.name}} </h4>
+        <h5> added by {{creator.name}}</h5>
         <br><br>
         <a href="{{url_for('newTeam', sport_id=sport.id, user_id=creator.id)}}">
-            Add new League
+            Add new Team
         </a> {% for team in teams %}
         <a href="{{url_for('showTeamPage', sport_id = sport.id, team_id = team.id)}}">
             {{team.name}}
