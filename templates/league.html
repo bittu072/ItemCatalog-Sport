@@ -11,8 +11,9 @@
         <br><br>
         <a href="{{url_for('newLeague', sport_id=sport.id)}}">
             Add new League
-        </a> {% for league in leagues %}
-        <a href="{{url_for('showTeams', sport_id = sport.id, league_id = league.id)}}">
+        </a>
+        <br><br> {% for league in leagues %}
+        <a href="{{url_for('showTeamsLeague', sport_id=sport.id, league_id=league.id)}}">
             {{league.name}}
         </a>
         <br>{% endfor %}

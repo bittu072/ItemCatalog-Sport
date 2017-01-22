@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>sport</title>
+    </head>
+
+    <body>
+        <h2> {{sport.name}} </h2>
+        <br><br>
+        <a href="{{url_for('newTeam', sport_id=sport.id, user_id=creator.id)}}">
+            Add new League
+        </a> {% for team in teams %}
+        <a href="{{url_for('showTeamPage', sport_id = sport.id, team_id = team.id)}}">
+            {{team.name}}
+        </a>
+        <br>{% endfor %}
+    </body>
+
+</html>

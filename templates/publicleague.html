@@ -6,7 +6,10 @@
     </head>
 
     <body>
-        {% for league in leagues %} <br>{{league.name}} {% endfor %}
+        <h2>{{sport.name}}</h2> {% for league in leagues %} <br>
+        <a href="{{url_for('showTeamsLeague', sport_id = sport.id, league_id = league.id)}}">
+            {{league.name}}
+        </a> {% endfor %}
     </body>
 
 </html>

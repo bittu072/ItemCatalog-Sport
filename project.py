@@ -42,6 +42,10 @@ def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
+def getLeagueName(league_id):
+    league = session.query(League).filter_by(id=league_id).one()
+    return league.name
+
 
 def getUserID(email):
     try:
@@ -121,7 +125,8 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: \
+    150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
 
     flash("Now logged in as %s" % login_session['username'])
     return output
@@ -190,8 +195,8 @@ def gconnect():
     stored_credentials = login_session.get('credentials')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps('Current \
+                                            user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -224,7 +229,8 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ' " style = "width: 300px; height: 300px;border-radius: \
+        150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
@@ -259,7 +265,8 @@ def gdisconnect():
     	return response
     else:
 
-    	response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+    	response = make_response(json.dumps('Failed to revoke token \
+                                         for given user.', 400))
     	response.headers['Content-Type'] = 'application/json'
     	return response
 
@@ -272,13 +279,18 @@ def showSports():
     else:
         return render_template('sport.html', sports=sports)
 
+@app.route('/sport/<int:sport_id>/')
+def showSportPage(sport_id):
+    return render_template('sportpage.html', sport_id=sport_id)
+
 
 @app.route('/sport/new/', methods=['GET', 'POST'])
 def newSport():
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
-        newSport = Sport(name=request.form['name'], user_id=login_session['user_id'])
+        newSport = Sport(name=request.form['name'],
+                         user_id=login_session['user_id'])
         session.add(newSport)
         flash('New Sport %s Successfully added' % newSport.name)
         session.commit()
@@ -287,7 +299,7 @@ def newSport():
         return render_template('newsport.html')
 
 
-@app.route('/sport/<int:sport_id>/')
+
 @app.route('/sport/<int:sport_id>/league')
 def showLeagues(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
@@ -320,18 +332,53 @@ def newLeague(sport_id):
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/')
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/team')
-def showTeams(sport_id, league_id):
-    # sport = session.query(Sport).filter_by(id=sport_id).one()
-    # leagues = session.query(league).filter_by(sport_id=sport_id).all()
-    # creator = getUserInfo(sport.user_id)
-    #
-    # if 'username' not in login_session or creator.id != login_session['user_id']:
-    #     return render_template('publicleague.html', leagues=leagues,
-    #                            sport=sport, creator=creator)
-    # else:
-    #     return render_template('league.html', leagues=leagues,
-    #                            sport=sport, creator=creator)
+def showTeamsLeague(sport_id, league_id):
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    league = session.query(League).filter_by(id=league_id).one()
+    teams = session.query(Team).filter_by(league_name=league.name).all()
+    creator = getUserInfo(league.user_id)
+
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        return render_template('publicteamleague.html', teams=teams,
+                               league=league, sport=sport, creator=creator)
+    else:
+        return render_template('teamleague.html', teams=teams,
+                               league=league, sport=sport, creator=creator)
+
+
+
+@app.route('/sport/<int:sport_id>/teams')
+def showTeams(sport_id):
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    teams = session.query(Team).filter_by(sport_id=sport_id).all()
+    creator = getUserInfo(sport.user_id)
+
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        return render_template('publicteam.html', teams=teams,
+                               sport=sport, creator=creator)
+    else:
+        return render_template('team.html', teams=teams,
+                               sport=sport, creator=creator)
+
+
+@app.route('/sport/<int:sport_id>/team/new')
+def newTeam(sport_id):
     return render_template('temp.html')
+
+
+@app.route('/sport/<int:sport_id>/team/<int:team_id>')
+def showTeampage(sport_id, team_id):
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    team = session.query(Team).filter_by(team_id=team_id).one()
+    creator = getUserInfo(team.user_id)
+
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        return render_template('publicteampage.html', team=team,
+                               sport=sport, creator=creator)
+    else:
+        return render_template('teampage.html', team=team,
+                               sport=sport, creator=creator)
+
 
 # Disconnect based on provider
 @app.route('/disconnect')
