@@ -1,21 +1,18 @@
-<!DOCTYPE html>
-<html>
-
-    <head>
-        <title>sport</title>
-    </head>
-
-    <body>
-        <h2>
-            <a href="{{url_for('showLeagues', sport_id = sport_id)}}">
-                List of league
-            </a>
-            <br><br><br><br><br>
-            <a href="{{url_for('showTeams', sport_id = sport_id)}}">
-                List of teams
-            </a>
-        </h2>
-
-    </body>
-
-</html>
+{% extends "header2.html" %} {% block header %} "{{sport.name}}" {% endblock %} {% block body %}
+<br>
+<br>
+<br>
+<h2>
+<div class="row">
+    <div class="col-md-6 text-center">
+        <a href="{{url_for('showLeagues', sport_id = sport.id)}}" class="btn button-txt">
+            <b>Leagues</b>
+        </a>
+    </div>
+    <div class="col-md-6 text-center">
+        <a href="{{url_for('showTeams', sport_id = sport.id)}}" class="btn button-txt">
+            <b>Teams</b>
+        </a>
+    </div>
+</div>
+</h2> {% endblock %}

@@ -1,18 +1,15 @@
-<!DOCTYPE html>
-<html>
+{% extends "header2.html" %} {% block header %} "{{sport.name}}" {% endblock %} {% block body %}
+<h2>
+    {{team.name}}
+</h2>
+<p>
+    added by {{creator.name}}
+</p>
 
-    <head>
-        <title>sport</title>
-    </head>
+<h5>
+    {{team.league_name}}
+</h5>
+<br>
+<br> {{team.description}}
 
-    <body>
-        <h2> {{team.name}} </h2>
-        <p> added by {{creator.name}}</p>
-        <h3> {{sport.name}} </h3>
-        <h5> {{team.league_name}}</h5>
-        <br><br> {{team.description}}
-
-        <br>
-    </body>
-
-</html>
+<br> {% endblock %}

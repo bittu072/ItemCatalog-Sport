@@ -1,0 +1,97 @@
+
+h3 {
+	color: #96452a;
+}
+
+.glyphicon {
+	margin-right: 10px;
+}
+.top-menu {
+	padding-top: 30px;
+	padding-bottom: 30px;
+}
+.top-menu p {
+	margin-bottom: 0;
+	line-height: 16px;
+}
+.top-menu a {
+	margin-bottom: 0;
+	line-height: 16px;
+	font-size: 16px;
+	color: #282828;
+	font-weight: 400;
+}
+
+.sport-list {
+   background-color: #F0F0F0;
+   padding: 20px;
+u }
+.sport-list:hover {
+   background-color: #282828;
+   padding: 20px;
+}
+
+.divider {
+	height: 7px;
+}
+.divider.blue {
+	background-color: #2a6496;
+}
+.divider.orange {
+	background-color: #96452a;
+}
+
+.banner.main {
+	height: 150px;
+	background: url("/static/top-banner.jpg");
+	background-position: right;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+.banner.menu {
+	height: 150px;
+	background-color: #282828;
+}
+.banner.profile {
+	height: 150px;
+	background-color: #2a6496;
+}
+.banner h1 {
+	margin: 45px 0;
+}
+.padding-none {
+	padding: 0;
+}
+
+.btn {
+    background-color: #96452a;
+    color: #282828;
+    padding: 0px;
+    font-size: 25px;
+    border: none;
+    cursor: pointer;
+	border-radius: 5px;
+}
+
+.btn:hover {
+    background-color: #282828;
+    color: #96452a;
+}
+
+.button-txt {
+    padding: 3px 10px;
+}
+
+.header-right {
+	margin-top: 105px;
+	font-size: 30px;
+	color: #96452a;
+}
+
+.margin-col {
+	margin-top: 20px;
+}
+
+.margin-col2 h1{
+	margin-top: 0px;
+}

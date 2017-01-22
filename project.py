@@ -42,6 +42,7 @@ def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
+
 def getLeagueName(league_id):
     league = session.query(League).filter_by(id=league_id).one()
     return league.name
@@ -279,9 +280,11 @@ def showSports():
     else:
         return render_template('sport.html', sports=sports)
 
+
 @app.route('/sport/<int:sport_id>/')
 def showSportPage(sport_id):
-    return render_template('sportpage.html', sport_id=sport_id)
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    return render_template('sportpage.html', sport=sport)
 
 
 @app.route('/sport/new/', methods=['GET', 'POST'])
@@ -297,7 +300,6 @@ def newSport():
         return redirect(url_for('showSports'))
     else:
         return render_template('newsport.html')
-
 
 
 @app.route('/sport/<int:sport_id>/league')
@@ -349,21 +351,30 @@ def showTeamsLeague(sport_id, league_id):
 def newTeam(sport_id, league_id):
     if 'username' not in login_session:
         return redirect('/login')
-    if league_id:
-        league_name = getLeagueName(league_id)
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    leagues = session.query(League).filter_by(sport_id=sport_id).all()
     if request.method == 'POST':
         newTeam = Team(name=request.form['teamname'],
-                       description=request.form['description'],
-                       league_name=league_name,
-                       sport_id = sport_id,
-                       user_id=login_session['user_id'])
+                    description=request.form['description'],
+                    league_name=request.form['leaguename'],
+                    sport_id = sport_id,
+                    user_id=login_session['user_id'])
         session.add(newTeam)
         # flash('New Sport %s Successfully added' % newTeam.name)
         session.commit()
-        return redirect(url_for('showTeamsLeague', sport_id=sport_id,
-                                league_id=league_id))
+        if not league_id==0:
+            return redirect(url_for('showTeamsLeague', sport_id=sport_id,
+                            league_id=league_id))
+        else:
+            return redirect(url_for('showTeams', sport_id=sport_id))
     else:
-        return render_template('newteam.html', sport_id=sport_id)
+        if not league_id==0:
+            league_name = getLeagueName(league_id)
+            return render_template('newteam.html', sport=sport,
+                               league_name=league_name, leagues=leagues)
+        else:
+            return render_template('newteam.html', sport=sport,
+                                   leagues=leagues)
 
 
 @app.route('/sport/<int:sport_id>/team/<int:team_id>')
@@ -393,28 +404,8 @@ def showTeams(sport_id):
         return render_template('team.html', teams=teams,
                                sport=sport, creator=creator)
 
-@app.route('/sport/<int:sport_id>/team/new', methods=['GET', 'POST'])
-def newTeamNoLeague(sport_id):
-    leagues = session.query(League).filter_by(sport_id=sport_id).all()
-    if 'username' not in login_session:
-        return redirect('/login')
-    try:
-        league_name = getLeagueName(league_id)
-    except:
-        print ""
-    if request.method == 'POST':
-        newTeam = Team(name=request.form['teamname'],
-                       description=request.form['description'],
-                       league_name=request.form['leaguename'],
-                       sport_id = sport_id,
-                       user_id=login_session['user_id'])
-        session.add(newTeam)
-        # flash('New Sport %s Successfully added' % newTeam.name)
-        session.commit()
-        return redirect(url_for('showTeams', sport_id=sport_id))
-    else:
-        return render_template('newteamnoleague.html', sport_id=sport_id,
-                               leagues=leagues)
+
+
 
 
 # Disconnect based on provider

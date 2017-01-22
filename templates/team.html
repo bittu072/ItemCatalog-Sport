@@ -1,21 +1,14 @@
-<!DOCTYPE html>
-<html>
+{% extends "header2.html" %} {% block header %} "{{sport.name}}" {% endblock %} {% block body %}
 
-    <head>
-        <title>sport</title>
-    </head>
-
-    <body>
-        <h2> {{sport.name}} </h2>
-        <br><br>
-        <a href="{{url_for('newTeamNoLeague', sport_id=sport.id)}}">
-            Add new Team
-        </a>
-        <br><br><br>{% for team in teams %}
-        <a href="{{url_for('showTeampage', sport_id = sport.id, team_id = team.id)}}">
-            {{team.name}}
-        </a>
-        <br>{% endfor %}
-    </body>
-
-</html>
+<br>
+<br>
+<a href="{{url_for('newTeam', sport_id=sport.id, league_id=0)}}">
+    Add new Team
+</a>
+<br>
+<br>
+<br>{% for team in teams %}
+<a href="{{url_for('showTeampage', sport_id = sport.id, team_id = team.id)}}">
+    {{team.name}}
+</a>
+<br>{% endfor %} {% endblock %}

@@ -1,22 +1,18 @@
-<!DOCTYPE html>
-<html>
-
-    <head>
-        <title>sport</title>
-    </head>
-
-    <body>
-        <h2> {{sport.name}} </h2>
-        <p> added by {{creator.name}}</p>
-        <br><br>
-        <a href="{{url_for('newLeague', sport_id=sport.id)}}">
-            Add new League
-        </a>
-        <br><br> {% for league in leagues %}
-        <a href="{{url_for('showTeamsLeague', sport_id=sport.id, league_id=league.id)}}">
-            {{league.name}}
-        </a>
-        <br>{% endfor %}
-    </body>
-
-</html>
+{% extends "header2.html" %} {% block header %} "{{sport.name}}" {% endblock %} {% block body %}
+<br><br>
+<div class="row text-center">
+    <a href="{{url_for('newLeague', sport_id=sport.id)}}" class="btn button-txt" style="text-decoration: none;">
+        Add new League
+    </a>
+</div>
+<br><br> {% for league in leagues %}
+<a href="{{url_for('showTeamsLeague', sport_id=sport.id, league_id=league.id)}}">
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10 sport-list">
+            <h3>{{league.name}}</h3>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+</a>
+<br>{% endfor %} {% endblock %}

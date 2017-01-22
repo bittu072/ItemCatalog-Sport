@@ -1,13 +1,6 @@
-<!DOCTYPE html>
-<html>
-
-    <head>
-        <title>sport</title>
-    </head>
-
-    <body>
-        <h2> {{team.name}} </h2>
-        <p> login to see details </ <br>
-    </body>
-
-</html>
+{% extends "header2.html" %} {% block header %} "{{sport.name}}" {% endblock %} {% block body %}
+<h2>
+    {{team.name}}
+</h2>
+<p> login to see details </ <br>
+    {% endblock %}
