@@ -319,7 +319,6 @@ def newLeague(sport_id):
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
-        print "in"
         newLeague = League(name=request.form['leaguename'], sport_id = sport_id,
                           user_id=login_session['user_id'])
         session.add(newLeague)
@@ -346,6 +345,40 @@ def showTeamsLeague(sport_id, league_id):
                                league=league, sport=sport, creator=creator)
 
 
+@app.route('/sport/<int:sport_id>/<int:league_id>/team/new', methods=['GET', 'POST'])
+def newTeam(sport_id, league_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    if league_id:
+        league_name = getLeagueName(league_id)
+    if request.method == 'POST':
+        newTeam = Team(name=request.form['teamname'],
+                       description=request.form['description'],
+                       league_name=league_name,
+                       sport_id = sport_id,
+                       user_id=login_session['user_id'])
+        session.add(newTeam)
+        # flash('New Sport %s Successfully added' % newTeam.name)
+        session.commit()
+        return redirect(url_for('showTeamsLeague', sport_id=sport_id,
+                                league_id=league_id))
+    else:
+        return render_template('newteam.html', sport_id=sport_id)
+
+
+@app.route('/sport/<int:sport_id>/team/<int:team_id>')
+def showTeampage(sport_id, team_id):
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    team = session.query(Team).filter_by(id=team_id).one()
+    creator = getUserInfo(team.user_id)
+
+    if 'username' not in login_session or creator.id != login_session['user_id']:
+        return render_template('publicteampage.html', team=team,
+                               sport=sport, creator=creator)
+    else:
+        return render_template('teampage.html', team=team,
+                               sport=sport, creator=creator)
+
 
 @app.route('/sport/<int:sport_id>/teams')
 def showTeams(sport_id):
@@ -360,24 +393,28 @@ def showTeams(sport_id):
         return render_template('team.html', teams=teams,
                                sport=sport, creator=creator)
 
-
-@app.route('/sport/<int:sport_id>/team/new')
-def newTeam(sport_id):
-    return render_template('temp.html')
-
-
-@app.route('/sport/<int:sport_id>/team/<int:team_id>')
-def showTeampage(sport_id, team_id):
-    sport = session.query(Sport).filter_by(id=sport_id).one()
-    team = session.query(Team).filter_by(team_id=team_id).one()
-    creator = getUserInfo(team.user_id)
-
-    if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('publicteampage.html', team=team,
-                               sport=sport, creator=creator)
+@app.route('/sport/<int:sport_id>/team/new', methods=['GET', 'POST'])
+def newTeamNoLeague(sport_id):
+    leagues = session.query(League).filter_by(sport_id=sport_id).all()
+    if 'username' not in login_session:
+        return redirect('/login')
+    try:
+        league_name = getLeagueName(league_id)
+    except:
+        print ""
+    if request.method == 'POST':
+        newTeam = Team(name=request.form['teamname'],
+                       description=request.form['description'],
+                       league_name=request.form['leaguename'],
+                       sport_id = sport_id,
+                       user_id=login_session['user_id'])
+        session.add(newTeam)
+        # flash('New Sport %s Successfully added' % newTeam.name)
+        session.commit()
+        return redirect(url_for('showTeams', sport_id=sport_id))
     else:
-        return render_template('teampage.html', team=team,
-                               sport=sport, creator=creator)
+        return render_template('newteamnoleague.html', sport_id=sport_id,
+                               leagues=leagues)
 
 
 # Disconnect based on provider
