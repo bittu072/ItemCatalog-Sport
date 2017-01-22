@@ -1,0 +1,6 @@
+*.pyc
+
+client_secrets.json
+templates/login.html
+fb_client_secrets.json
+yelp_client_secrets.json
