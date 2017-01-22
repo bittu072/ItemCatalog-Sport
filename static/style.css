@@ -88,10 +88,48 @@ u }
 	color: #96452a;
 }
 
+.team-color{
+	font-size: 60px;
+	color: #96452a;
+}
+
 .margin-col {
 	margin-top: 20px;
 }
 
 .margin-col2 h1{
 	margin-top: 0px;
+}
+
+.formcontainer {
+    margin-left:20%;
+    margin-right: 20%;
+}
+
+.form-setup {
+    max-width: 900px;
+    padding: 15px;
+    margin: 0 auto;
+    background-color: #282828;
+    color: #fff;
+}
+
+.input-form {
+    width: 650px;
+}
+
+.text-input-form {
+    height: 200px;
+}
+
+.form-color {
+	color: #282828;
+}
+
+.leftBlock {
+    padding-left: 20px;
+    text-indent: -20px;
+}
+.leftBlock input {
+    width: 20px;
 }

@@ -318,6 +318,7 @@ def showLeagues(sport_id):
 
 @app.route('/sport/<int:sport_id>/league/new', methods=['GET', 'POST'])
 def newLeague(sport_id):
+    sport = session.query(Sport).filter_by(id=sport_id).one()
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
@@ -328,7 +329,7 @@ def newLeague(sport_id):
         session.commit()
         return redirect(url_for('showLeagues', sport_id=sport_id))
     else:
-        return render_template('newleague.html', sport_id=sport_id)
+        return render_template('newleague.html', sport=sport)
 
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/')

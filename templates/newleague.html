@@ -1,8 +1,16 @@
 {% extends "header2.html" %} {% block header %} "{{sport.name}}" {% endblock %} {% block body %}
-<h2>Add League</h2>
-<form method="post">
-    <label for="name">Name:</label>
-    <input type="text" maxlength="100" name="leaguename">
-    <input type="submit" value="add">
-</form>
+<br>
+<br>
+<div class="container center">
+    <div class="formcontainer">
+        <h2 class="form-setup">Add League</h2>
+        <form method="post" class="form-setup">
+            <label for="name">Name:</label>
+            <input type="text" maxlength="100" name="leaguename" class="input-form form-color" placeholder="League Name">
+            <br>
+            <br>
+            <input type="submit" value="add" class="btn button-txt">
+        </form>
+    </div>
+</div>
 {% endblock %}

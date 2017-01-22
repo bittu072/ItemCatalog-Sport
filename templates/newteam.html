@@ -1,16 +1,29 @@
 {% extends "header2.html" %} {% block header %} "{{sport.name}}" {% endblock %} {% block body %}
-<h2>Add Team</h2>
-<form method="post">
-    <label for="name">Name:</label>
-    <input type="text" maxlength="100" name="teamname">
-    <br>
-    <label for="name">Select league:</label><br> {% for league in leagues %} {% if league.name==league_name %}
-    <input type="radio" name="leaguename" value="{{league.name}}" checked> {{league.name}}<br>{% else %}
-    <input type="radio" name="leaguename" value="{{league.name}}"> {{league.name}}<br>{% endif %} {% endfor %}{% if league_name %}
-    <input type="radio" name="leaguename" value="No league"> No league<br> {% else %}
-    <input type="radio" name="leaguename" value="No league" checked> No league<br>{% endif %}
-    <label for="description">Description:</label>
-    <textarea class="form-control" maxlength="250" rows="3" name="description" placeholder="Description of the course"></textarea>
-    <input type="submit" value="add">
-</form>
+
+
+<br>
+<br>
+<div class="container center">
+    <div class="formcontainer">
+        <h2 class="form-setup">Add Team</h2>
+        <form method="post" class="form-setup">
+            <label for="name">Name:</label>
+            <input type="text" maxlength="100" name="teamname" class="input-form form-color" placeholder="Team Name">
+            <br>
+            <br>
+            <label for="name">Select league:</label><br> {% for league in leagues %} {% if league.name==league_name %}
+
+            <input type="radio" name="leaguename" value="{{league.name}}" checked> {{league.name}}<br>{% else %}
+            <input type="radio" name="leaguename" value="{{league.name}}"> {{league.name}}<br>{% endif %} {% endfor %}{% if league_name %}
+            <input type="radio" name="leaguename" value="No league"> No league<br> {% else %}
+            <input type="radio" name="leaguename" value="No league" checked> No league<br>{% endif %}
+            <label for="description">Description:</label>
+            <textarea class="form-control" maxlength="250" rows="3" name="description" class="input-form form-color" placeholder="Description of the team"></textarea>
+
+            <br>
+            <br>
+            <input type="submit" value="add" class="btn button-txt">
+        </form>
+    </div>
+</div>
 {% endblock %}
