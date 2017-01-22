@@ -1,0 +1,19 @@
+{% extends "main.html" %} {% block content %} {% include "header.html" %}
+<br>
+<br>
+
+</form>
+
+<div class="container center">
+    <div class="formcontainer">
+        <h2 class="form-setup">Edit Sport</h2>
+        <form method="post" class="form-setup">
+            <label for="name">Name:</label>
+            <input type="text" maxlength="100" name="name" class="input-form form-color" placeholder="{{editedSport.name}}">
+            <br>
+            <br>
+            <input type="submit" value="add" class="btn button-txt">
+        </form>
+    </div>
+</div>
+{% endblock %}

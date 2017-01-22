@@ -11,6 +11,9 @@
         <div class="col-md-1"></div>
         <div class="col-md-10 sport-list">
             <h3>{{league.name}}</h3>
+            <a href="{{url_for('editLeague', sport_id = sport.id, league_id=league.id )}}">
+                Edit League
+    		</a>
         </div>
         <div class="col-md-1"></div>
     </div>

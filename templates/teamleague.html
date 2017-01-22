@@ -23,6 +23,9 @@
         <div class="col-md-4"></div>
         <div class="col-md-4 sport-list">
             <h3>{{team.name}}</h3>
+            <a href="{{url_for('editTeam', sport_id=sport.id, team_id=team.id )}}">
+                Edit League
+    		</a>
         </div>
         <div class="col-md-4"></div>
     </div>

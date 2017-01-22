@@ -302,6 +302,24 @@ def newSport():
         return render_template('newsport.html')
 
 
+@app.route('/sport/<int:sport_id>/edit/', methods=['GET', 'POST'])
+def editSport(sport_id):
+    editedSport = session.query(Sport).filter_by(id=sport_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    if editedSport.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to edit this Sport. Please create your own Sport in order to edit.');}</script><body onload='myFunction()''>"
+    if request.method == 'POST':
+        if request.form['name']:
+            editedSport.name = request.form['name']
+            session.add(editedSport)
+            session.commit()
+            flash('Sport Successfully Edited %s' % editedSport.name)
+            return redirect(url_for('showSports'))
+    else:
+        return render_template('editsport.html', editedSport=editedSport)
+
+
 @app.route('/sport/<int:sport_id>/league')
 def showLeagues(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
@@ -330,6 +348,33 @@ def newLeague(sport_id):
         return redirect(url_for('showLeagues', sport_id=sport_id))
     else:
         return render_template('newleague.html', sport=sport)
+
+
+@app.route('/sport/<int:sport_id>/league/<int:league_id>/edit',
+           methods=['GET', 'POST'])
+def editLeague(sport_id, league_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    editedLeague = session.query(League).filter_by(id=league_id).one()
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    teams = session.query(Team).filter_by(league_name=editedLeague.name)
+    if login_session['user_id'] != editedLeague.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to edit this league. Please create your own eague in order to edit it.');}</script><body onload='myFunction()''>"
+    if request.method == 'POST':
+        if request.form['name']:
+            editedLeague.name = request.form['name']
+            session.add(editedLeague)
+            session.commit()
+            # as league gets changed, we should also change teams' "league_name"
+            for team in teams:
+                team.league_name=editedLeague.name
+                session.add(team)
+                session.commit()
+            flash('League Successfully Edited')
+            return redirect(url_for('showLeagues', sport_id=sport_id))
+    else:
+        return render_template('editleague.html', sport_id=sport_id,
+                               league_id=league_id, editedLeague=editedLeague)
 
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/')
@@ -378,6 +423,32 @@ def newTeam(sport_id, league_id):
                                    leagues=leagues)
 
 
+@app.route('/sport/<int:sport_id>/team/<int:team_id>/\
+           edit', methods=['GET', 'POST'])
+def editTeam(sport_id, team_id):
+    if 'username' not in login_session:
+        return redirect('/login')
+    editedTeam = session.query(Team).filter_by(id=team_id).one()
+    leagues = session.query(League).filter_by(sport_id=sport_id).all()
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    if login_session['user_id'] != editedTeam.user_id:
+        return "<script>function myFunction() {alert('You are not authorized to edit this team. Please create your own team in order to edit it.');}</script><body onload='myFunction()''>"
+    if request.method == 'POST':
+        if request.form['teamname']:
+            editedTeam.name = request.form['teamname']
+        if request.form['leaguename']:
+            editedTeam.league_name = request.form['leaguename']
+        if request.form['description']:
+            editedTeam.description = request.form['description']
+        session.add(editedTeam)
+        session.commit()
+        flash('Team Successfully Edited')
+        return redirect(url_for('showSportPage', sport_id=sport_id))
+    else:
+        return render_template('editteam.html', sport=sport, leagues=leagues,
+                               editedTeam=editedTeam)
+
+
 @app.route('/sport/<int:sport_id>/team/<int:team_id>')
 def showTeampage(sport_id, team_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
@@ -404,9 +475,6 @@ def showTeams(sport_id):
     else:
         return render_template('team.html', teams=teams,
                                sport=sport, creator=creator)
-
-
-
 
 
 # Disconnect based on provider
