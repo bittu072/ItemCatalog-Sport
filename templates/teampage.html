@@ -5,29 +5,30 @@
     </div>
     <div class="col-md-6 text-right margin-col2">
         <h1>
-        {{team.league_name}}
-    </h1>
-        <h5>
-        added by {{creator.name}}
-    </h5>
+            {{team.league_name}}
+        </h1>
+        <h5 class="mrgin-rght topmargin-none">
+            added by {{creator.name}}
+        </h5>
+    </div>
+</div>
+<br><br>
+<div class="row text-center">
+    <div class="col-md-6 margin-col">
+        <a href="{{url_for('editTeam', sport_id=sport.id , team_id=team.id)}}" class="btned button-txt btn-setting">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Edit Team
+        </a>
+    </div>
+
+    <div class="col-md-6 margin-col">
+
+        <a href="{{url_for('deleteTeam', sport_id = sport.id, team_id=team.id)}}" class="btned button-txt btn-setting">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Delete Team
+        </a>
+
     </div>
 </div>
 
-<div class="row padding-top padding-bottom">
-    <div class="col-md-1"></div>
-    <div class="col-md-11 padding-none">
-        <a href="{{url_for('editTeam', sport_id=sport.id , team_id=team.id)}}">
-            <button class="btn btn-default" id="edit-team">
-				<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Edit Team
-			</button>
-        </a>
-        <a href="{{url_for('deleteTeam', sport_id = sport.id, team_id=team.id)}}">
-            <button class="btn btn-default delete" id="delete-team">
-				<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Delete Team
-			</button>
-        </a>
-    </div>
-</div>
 <br><br>
 
 <br>

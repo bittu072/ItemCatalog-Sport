@@ -24,11 +24,12 @@ h3 {
 
 .sport-list {
    background-color: #F0F0F0;
-   padding: 20px;
-u }
+
+}
+
 .sport-list:hover {
    background-color: #282828;
-   padding: 20px;
+
 }
 
 .divider {
@@ -88,9 +89,13 @@ u }
 	color: #96452a;
 }
 
-.team-color{
+.team-color {
 	font-size: 60px;
 	color: #96452a;
+}
+
+.topmargin-none {
+	margin-top: 0px;
 }
 
 .margin-col {
@@ -132,4 +137,45 @@ u }
 }
 .leftBlock input {
     width: 20px;
+}
+
+.btned {
+    color: #282828;
+    padding: 0px;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+	border-radius: 1px;
+	border-style: solid;
+    border-color: #282828;
+}
+
+.btned:hover {
+	border-color: #96452a;
+    color: #96452a;
+	text-decoration: none;
+}
+
+.btn-setting {
+	margin-right: 10px;
+	padding: 5px;
+}
+
+.mrgin-rght {
+	margin-right: 20px;
+}
+
+.floating-box {
+	display: inline-block;
+	margin: 1.4% 4%;
+	float: left;
+}
+
+.floatingbtn-box {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.error {
+	color: #6d0303
 }

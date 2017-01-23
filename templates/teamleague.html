@@ -1,50 +1,40 @@
 {% extends "header2.html" %} {% block header %} "{{sport.name}}" {% endblock %} {% block body %}
 <div class="row">
     <div class="col-md-6 margin-col">
+
+    </div>
+    <div class="col-md-6 text-right margin-col2">
+        <h2 class="topmargin-none">
+        	league <span class="team-color">{{league.name}}</span>
+		</h2>
+        <h5>
+            added by {{creator.name}}
+        </h5>
+    </div>
+</div>
+<br><br>
+<div class="row">
+    <div class="col-md-4 text-center">
+        <a href="{{url_for('editLeague', sport_id=sport.id , league_id=league.id)}}" class="btned button-txt btn-setting">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Edit league
+        </a>
+    </div>
+    <div class="col-md-4 text-center">
         <a href="{{url_for('newTeam', sport_id=sport.id, league_id=league.id, user_id=creator.id)}}" class="btn button-txt" style="text-decoration: none;">
             Add new Team
         </a>
     </div>
-    <div class="col-md-6 text-right margin-col2">
-        <h1>
-        {{league.name}}
-    </h1>
-        <h5>
-        added by {{creator.name}}
-    </h5>
-    </div>
-</div>
-<br>
-<br>
-
-<div class="row padding-top padding-bottom">
-    <div class="col-md-1"></div>
-    <div class="col-md-11 padding-none">
-        <a href="{{url_for('editLeague', sport_id=sport.id , league_id=league.id)}}">
-            <button class="btn btn-default" id="edit-league">
-				<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Edit league
-			</button>
-        </a>
-        <a href="{{url_for('deleteLeague', sport_id = sport.id, league_id=league.id)}}">
-            <button class="btn btn-default delete" id="delete-league">
-				<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Delete league
-			</button>
+    <div class="col-md-4 text-center">
+        <a href="{{url_for('deleteLeague', sport_id = sport.id, league_id=league.id)}}" class="btned button-txt btn-setting">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Delete league
         </a>
     </div>
 </div>
-<br><br>
 
 <br> {% for team in teams %}
 <a href="{{url_for('showTeampage', sport_id = sport.id, team_id = team.id)}}">
-    <div class="row">
-        <div class="col-md-4"></div>
-        <div class="col-md-4 sport-list">
-            <h3>{{team.name}}</h3>
-            <a href="{{url_for('editTeam', sport_id=sport.id, team_id=team.id )}}">
-                Edit League
-    		</a>
-        </div>
-        <div class="col-md-4"></div>
+    <div class="col-md-3 sport-list floating-box">
+        <h3>{{team.name}}</h3>
     </div>
 </a>
-<br>{% endfor %} {% endblock %}
+{% endfor %} {% endblock %}

@@ -28,6 +28,7 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+# usefull functions
 
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
@@ -55,6 +56,8 @@ def getUserID(email):
     except:
         return None
 
+# login function
+
 
 @app.route('/')
 @app.route('/login')
@@ -64,6 +67,8 @@ def showLogin():
     login_session['state'] = state
     # return "The current session state is %s" % login_session['state']
     return render_template('login.html', STATE=state)
+
+# fb login
 
 
 @app.route('/fbconnect', methods=['POST'])
@@ -132,6 +137,8 @@ def fbconnect():
     flash("Now logged in as %s" % login_session['username'])
     return output
 
+# fb logout
+
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
@@ -142,6 +149,8 @@ def fbdisconnect():
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
+
+# googe login
 
 
 @app.route('/gconnect', methods=['POST'])
@@ -236,7 +245,7 @@ def gconnect():
     print "done!"
     return output
 
-    # DISCONNECT - Revoke a current user's token and reset their login_session
+# google logout
 
 
 @app.route('/gdisconnect')
@@ -271,6 +280,8 @@ def gdisconnect():
     	response.headers['Content-Type'] = 'application/json'
     	return response
 
+# show list of all the sports
+
 
 @app.route('/sport')
 def showSports():
@@ -280,11 +291,15 @@ def showSports():
     else:
         return render_template('sport.html', sports=sports)
 
+# two option inside sport. 1. leagues 2. teams
+
 
 @app.route('/sport/<int:sport_id>/')
 def showSportPage(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     return render_template('sportpage.html', sport=sport)
+
+# create new sport
 
 
 @app.route('/sport/new/', methods=['GET', 'POST'])
@@ -301,6 +316,8 @@ def newSport():
     else:
         return render_template('newsport.html')
 
+# edit sport
+
 
 @app.route('/sport/<int:sport_id>/edit/', methods=['GET', 'POST'])
 def editSport(sport_id):
@@ -308,7 +325,9 @@ def editSport(sport_id):
     if 'username' not in login_session:
         return redirect('/login')
     if editedSport.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to edit this Sport. Please create your own Sport in order to edit.');}</script><body onload='myFunction()''>"
+        return render_template('sport.html',
+                        error="You are not allowed to EDIT it")
+
     if request.method == 'POST':
         if request.form['name']:
             editedSport.name = request.form['name']
@@ -319,21 +338,39 @@ def editSport(sport_id):
     else:
         return render_template('editsport.html', editedSport=editedSport)
 
+# delete sport and its all members
+
 
 @app.route('/sport/<int:sport_id>/delete/', methods=['GET', 'POST'])
 def deleteSport(sport_id):
     sportToDelete = session.query(Sport).filter_by(id=sport_id).one()
+    leagues = session.query(League).filter_by(sport_id=sport_id).all()
+    teams = session.query(Team).filter_by(sport_id=sport_id).all()
     if 'username' not in login_session:
         return redirect('/login')
     if sportToDelete.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this Sport.');}</script><body onload='myFunction()''>"
+        return render_template('sport.html',
+                        error="You are not allowed to DELETE it")
     if request.method == 'POST':
         session.delete(sportToDelete)
         flash('%s Successfully Deleted' % sportToDelete.name)
         session.commit()
+        # if sport gets deleted then deleted all leagues of that sport
+        # and all teams of that sport
+        if leagues:
+            for league in leagues:
+                session.delete(league)
+                session.commit()
+        if teams:
+            for team in teams:
+                session.delete(team)
+                session.commit()
+
         return redirect(url_for('showSports'))
     else:
         return render_template('delete.html', sport=sportToDelete)
+
+# show leagues
 
 
 @app.route('/sport/<int:sport_id>/league')
@@ -341,13 +378,12 @@ def showLeagues(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     leagues = session.query(League).filter_by(sport_id=sport_id).all()
     creator = getUserInfo(sport.user_id)
+    if 'username' not in login_session:
+        return redirect('/login')
+    return render_template('league.html', leagues=leagues,
+                               sport=sport, creator=creator)
 
-    if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('publicleague.html', leagues=leagues,
-                               sport=sport, creator=creator)
-    else:
-        return render_template('league.html', leagues=leagues,
-                               sport=sport, creator=creator)
+# create new league
 
 
 @app.route('/sport/<int:sport_id>/league/new', methods=['GET', 'POST'])
@@ -365,6 +401,8 @@ def newLeague(sport_id):
     else:
         return render_template('newleague.html', sport=sport)
 
+# edit league
+
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/edit',
            methods=['GET', 'POST'])
@@ -375,7 +413,8 @@ def editLeague(sport_id, league_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     teams = session.query(Team).filter_by(league_name=editedLeague.name)
     if login_session['user_id'] != editedLeague.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to edit this league. Please create your own eague in order to edit it.');}</script><body onload='myFunction()''>"
+        return render_template('league.html',
+                        error="You are not allowed to EDIT this League")
     if request.method == 'POST':
         if request.form['name']:
             editedLeague.name = request.form['name']
@@ -393,6 +432,8 @@ def editLeague(sport_id, league_id):
         return render_template('editleague.html', sport_id=sport_id,
                                league_id=league_id, editedLeague=editedLeague)
 
+# delete league
+
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/delete/',
            methods=['GET', 'POST'])
@@ -403,7 +444,8 @@ def deleteLeague(sport_id, league_id):
     if 'username' not in login_session:
         return redirect('/login')
     if leagueToDelete.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this League.');}</script><body onload='myFunction()''>"
+        return render_template('league.html',
+                        error="You are not allowed to DELETE this League")
     if request.method == 'POST':
         session.delete(leagueToDelete)
         flash('%s Successfully Deleted' % leagueToDelete.name)
@@ -419,6 +461,7 @@ def deleteLeague(sport_id, league_id):
         return render_template('delete.html',
                                league=leagueToDelete, sport=sport)
 
+# show teams only in appropriate league
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/')
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/team')
@@ -427,13 +470,12 @@ def showTeamsLeague(sport_id, league_id):
     league = session.query(League).filter_by(id=league_id).one()
     teams = session.query(Team).filter_by(league_name=league.name).all()
     creator = getUserInfo(league.user_id)
+    if 'username' not in login_session:
+        return redirect('/login')
+    return render_template('teamleague.html', teams=teams,
+                               league=league, sport=sport, creator=creator)
 
-    if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('publicteamleague.html', teams=teams,
-                               league=league, sport=sport, creator=creator)
-    else:
-        return render_template('teamleague.html', teams=teams,
-                               league=league, sport=sport, creator=creator)
+# create new team
 
 
 @app.route('/sport/<int:sport_id>/<int:league_id>/team/new', methods=['GET', 'POST'])
@@ -465,6 +507,8 @@ def newTeam(sport_id, league_id):
             return render_template('newteam.html', sport=sport,
                                    leagues=leagues)
 
+# edit team
+
 
 @app.route('/sport/<int:sport_id>/team/<int:team_id>/\
            edit', methods=['GET', 'POST'])
@@ -475,7 +519,8 @@ def editTeam(sport_id, team_id):
     leagues = session.query(League).filter_by(sport_id=sport_id).all()
     sport = session.query(Sport).filter_by(id=sport_id).one()
     if login_session['user_id'] != editedTeam.user_id:
-        return "<script>function myFunction() {alert('You are not authorized to edit this team. Please create your own team in order to edit it.');}</script><body onload='myFunction()''>"
+        return render_template('team.html',
+                        error="You are not allowed to EDIT this Team")
     if request.method == 'POST':
         if request.form['teamname']:
             editedTeam.name = request.form['teamname']
@@ -491,6 +536,8 @@ def editTeam(sport_id, team_id):
         return render_template('editteam.html', sport=sport, leagues=leagues,
                                editedTeam=editedTeam)
 
+# delete team
+
 
 @app.route('/sport/<int:sport_id>/team/<int:team_id>/\
            delete', methods=['GET', 'POST'])
@@ -500,7 +547,8 @@ def deleteTeam(sport_id, team_id):
     if 'username' not in login_session:
         return redirect('/login')
     if teamToDelete.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this Team.');}</script><body onload='myFunction()''>"
+        return render_template('team.html',
+                        error="You are not allowed to DELETE this Team")
     if request.method == 'POST':
         session.delete(teamToDelete)
         flash('%s Successfully Deleted' % teamToDelete.name)
@@ -509,19 +557,20 @@ def deleteTeam(sport_id, team_id):
     else:
         return render_template('delete.html', sport=sport, team=teamToDelete)
 
+# show team info page
+
 
 @app.route('/sport/<int:sport_id>/team/<int:team_id>')
 def showTeampage(sport_id, team_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     team = session.query(Team).filter_by(id=team_id).one()
     creator = getUserInfo(team.user_id)
+    if 'username' not in login_session:
+        return redirect('/login')
+    return render_template('teampage.html', team=team,
+                               sport=sport, creator=creator)
 
-    if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('publicteampage.html', team=team,
-                               sport=sport, creator=creator)
-    else:
-        return render_template('teampage.html', team=team,
-                               sport=sport, creator=creator)
+# show all the teams in appropriate sport without considering leagues
 
 
 @app.route('/sport/<int:sport_id>/teams')
@@ -529,16 +578,14 @@ def showTeams(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     teams = session.query(Team).filter_by(sport_id=sport_id).all()
     creator = getUserInfo(sport.user_id)
-
-    if 'username' not in login_session or creator.id != login_session['user_id']:
-        return render_template('publicteam.html', teams=teams,
+    if 'username' not in login_session:
+        return redirect('/login')
+    return render_template('team.html', teams=teams,
                                sport=sport, creator=creator)
-    else:
-        return render_template('team.html', teams=teams,
-                               sport=sport, creator=creator)
-
 
 # Disconnect based on provider
+
+
 @app.route('/disconnect')
 def disconnect():
     if 'provider' in login_session:
@@ -555,7 +602,7 @@ def disconnect():
             del login_session['user_id']
         del login_session['provider']
         flash("You have successfully been logged out.")
-        return redirect(url_for('showRestaurants'))
+        return redirect(url_for('showLogin'))
     else:
         flash("You were not logged in")
 

@@ -7,6 +7,11 @@
         Add new Team
     </a>
 </div>
+{% if error %}
+<div class="alert alert-danger" id='infor' role="alert">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> {{error}}
+</div>
+{% endif %}
 <br><br> {% for team in teams %}
 <a href="{{url_for('showTeampage', sport_id = sport.id, team_id = team.id)}}">
     <div class="row">

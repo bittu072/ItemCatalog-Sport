@@ -5,6 +5,11 @@
         Add new League
     </a>
 </div>
+{% if error %}
+<div class="alert alert-danger" id='infor' role="alert">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> {{error}}
+</div>
+{% endif %}
 <br><br> {% for league in leagues %}
 <a href="{{url_for('showTeamsLeague', sport_id=sport.id, league_id=league.id)}}">
     <div class="row">

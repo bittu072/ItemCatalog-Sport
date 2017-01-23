@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from database_setup import Restaurant, Base, MenuItem, User
+from database_setup import Base, Sport, League, Team, User
 
 engine = create_engine('sqlite:///sports.db')
 # Bind the engine to the metadata of the Base class so that the
@@ -20,87 +19,143 @@ session = DBSession()
 
 
 # Create dummy user
-User1 = User(name="Robo Barista", email="tinnyTim@udacity.com",
-             picture='https://pbs.twimg.com/profile_images/2671170543/18debd694829ed78203a5a36dd364160_400x400.png')
+User1 = User(name="Brindal", email="brindalpatel70@gmail.com")
 session.add(User1)
 session.commit()
 
-# Menu for UrbanBurger
-restaurant1 = Restaurant(user_id=1, name="Urban Burger")
 
-session.add(restaurant1)
+
+# sport1  ############ football ####
+sport1 = Sport(user_id=1, name="football")
+session.add(sport1)
 session.commit()
 
-menuItem2 = MenuItem(user_id=1, name="Veggie Burger", description="Juicy grilled veggie patty with tomato mayo and lettuce",
-                     price="$7.50", course="Entree", restaurant=restaurant1)
+league1 = League(user_id=1, sport_id=1, name="la liga")
+session.add(league1)
+session.commit()
 
-session.add(menuItem2)
+league2 = League(user_id=1, sport_id=1, name="bundesliga")
+session.add(league2)
+session.commit()
+
+league3 = League(user_id=1, sport_id=1, name="EPL")
+session.add(league3)
+session.commit()
+
+team1 = Team(name="Real Madrid", sport_id=1, user_id=1, league_name="la liga")
+session.add(team1)
+session.commit()
+
+team2 = Team(name="Barcelona", sport_id=1, user_id=1, league_name="la liga")
+session.add(team2)
+session.commit()
+
+team3 = Team(name="Atletico Madrid", sport_id=1, user_id=1, league_name="la liga")
+session.add(team3)
+session.commit()
+
+team4 = Team(name="Dortmund", sport_id=1, user_id=1, league_name="bundesliga")
+session.add(team4)
+session.commit()
+
+team5 = Team(name="Bayern", sport_id=1, user_id=1, league_name="bundesliga")
+session.add(team5)
+session.commit()
+
+team6 = Team(name="Hamburg", sport_id=1, user_id=1, league_name="bundesliga")
+session.add(team6)
+session.commit()
+
+team7 = Team(name="Man Utd", sport_id=1, user_id=1, league_name="EPL")
+session.add(team7)
+session.commit()
+
+team8 = Team(name="Liverpool", sport_id=1, user_id=1, league_name="EPL")
+session.add(team8)
+session.commit()
+
+team9 = Team(name="Man City", sport_id=1, user_id=1, league_name="EPL")
+session.add(team9)
+session.commit()
+
+team10 = Team(name="Tottenham", sport_id=1, user_id=1, league_name="EPL")
+session.add(team10)
+session.commit()
+
+# sport2  ############ cricket ####
+sport2 = Sport(user_id=1, name="cricket")
+session.add(sport2)
+session.commit()
+
+league1 = League(user_id=1, sport_id=2, name="IPL")
+session.add(league1)
+session.commit()
+
+team1 = Team(name="Mumbai Indians", sport_id=2, user_id=1, league_name="IPL")
+session.add(team1)
+session.commit()
+
+team2 = Team(name="Delhi Daredevils", sport_id=2, user_id=1, league_name="IPL")
+session.add(team2)
+session.commit()
+
+team3 = Team(name="Chennai Super King", sport_id=2, user_id=1, league_name="IPL")
+session.add(team3)
+session.commit()
+
+team4 = Team(name="Rajasthan Royals", sport_id=2, user_id=1, league_name="IPL")
+session.add(team4)
 session.commit()
 
 
-menuItem1 = MenuItem(user_id=1, name="French Fries", description="with garlic and parmesan",
-                     price="$2.99", course="Appetizer", restaurant=restaurant1)
-
-session.add(menuItem1)
+# sport3  ############ basketball ####
+sport3 = Sport(user_id=1, name="basketball")
+session.add(sport3)
 session.commit()
 
-menuItem2 = MenuItem(user_id=1, name="Chicken Burger", description="Juicy grilled chicken patty with tomato mayo and lettuce",
-                     price="$5.50", course="Entree", restaurant=restaurant1)
-
-session.add(menuItem2)
+league1 = League(user_id=1, sport_id=3, name="NBA")
+session.add(league1)
 session.commit()
 
-menuItem3 = MenuItem(user_id=1, name="Chocolate Cake", description="fresh baked and served with ice cream",
-                     price="$3.99", course="Dessert", restaurant=restaurant1)
-
-session.add(menuItem3)
+league2 = League(user_id=1, sport_id=3, name="NBA D-League")
+session.add(league2)
 session.commit()
 
-menuItem4 = MenuItem(user_id=1, name="Sirloin Burger", description="Made with grade A beef",
-                     price="$7.99", course="Entree", restaurant=restaurant1)
-
-session.add(menuItem4)
+team1 = Team(name="Los Angeles Lakers", sport_id=3, user_id=1, league_name="NBA")
+session.add(team1)
 session.commit()
 
-menuItem5 = MenuItem(user_id=1, name="Root Beer", description="16oz of refreshing goodness",
-                     price="$1.99", course="Beverage", restaurant=restaurant1)
-
-session.add(menuItem5)
+team2 = Team(name="Chicago Bulls", sport_id=3, user_id=1, league_name="NBA")
+session.add(team2)
 session.commit()
 
-menuItem6 = MenuItem(user_id=1, name="Iced Tea", description="with Lemon",
-                     price="$.99", course="Beverage", restaurant=restaurant1)
-
-session.add(menuItem6)
+team3 = Team(name="New york Knicks", sport_id=3, user_id=1, league_name="NBA")
+session.add(team3)
 session.commit()
 
-menuItem7 = MenuItem(user_id=1, name="Grilled Cheese Sandwich",
-                     description="On texas toast with American Cheese", price="$3.49", course="Entree", restaurant=restaurant1)
-
-session.add(menuItem7)
+team4 = Team(name="Miami Heat", sport_id=3, user_id=1, league_name="NBA")
+session.add(team4)
 session.commit()
 
-menuItem8 = MenuItem(user_id=1, name="Veggie Burger", description="Made with freshest of ingredients and home grown spices",
-                     price="$5.99", course="Entree", restaurant=restaurant1)
-
-session.add(menuItem8)
+team5 = Team(name="San Antonio Spurs", sport_id=3, user_id=1, league_name="NBA")
+session.add(team5)
 session.commit()
 
-
-# Menu for Super Stir Fry
-restaurant2 = Restaurant(user_id=1, name="Super Stir Fry")
-
-session.add(restaurant2)
+team1 = Team(name="Santa cruz Warriors", sport_id=3, user_id=1, league_name="NBA D-League")
+session.add(team1)
 session.commit()
 
-
-menuItem1 = MenuItem(user_id=1, name="Chicken Stir Fry", description="With your choice of noodles vegetables and sauces",
-                     price="$7.99", course="Entree", restaurant=restaurant2)
-
-session.add(menuItem1)
+team2 = Team(name="Austin spurs", sport_id=3, user_id=1, league_name="NBA D-League")
+session.add(team2)
 session.commit()
 
+team3 = Team(name="Los Angeles D-Fenders", sport_id=3, user_id=1, league_name="NBA D-League")
+session.add(team3)
+session.commit()
 
+team4 = Team(name="Iowa Energy", sport_id=3, user_id=1, league_name="NBA D-League")
+session.add(team4)
+session.commit()
 
 
 print "added teams and leagues!"

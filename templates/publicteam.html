@@ -1,0 +1,14 @@
+{% extends "header2.html" %} {% block header %} "{{sport.name}}" {% endblock %} {% block body %}
+
+
+<br><br> {% for team in teams %}
+<a href="{{url_for('showTeampage', sport_id = sport.id, team_id = team.id)}}">
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10 sport-list">
+            <h3>{{team.name}}</h3>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+</a>
+<br>{% endfor %} {% endblock %}

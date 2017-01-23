@@ -4,6 +4,11 @@
             Add new Sport
         </a>
 </div>
+<br> {% if error %}
+<div class="alert alert-danger" id='infor' role="alert">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> {{error}}
+</div>
+{% endif %}
 <br>{% for sport in sports %}
 
 
@@ -16,4 +21,4 @@
         <div class="col-md-1"></div>
     </div>
 </a>
-{% endfor %} {% endblock %}
+<br> {% endfor %} {% endblock %}

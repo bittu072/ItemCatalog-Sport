@@ -1,6 +1,23 @@
 {% extends "header2.html" %} {% block header %} "{{sport.name}}" {% endblock %} {% block body %}
-<h2>
-    {{team.name}}
-</h2>
-<p> login to see details </ <br>
-    {% endblock %}
+<div class="row">
+    <div class="col-md-6 margin-col2 team-color">
+        {{team.name}}
+    </div>
+    <div class="col-md-6 text-right margin-col2">
+        <h1>
+            {{team.league_name}}
+        </h1>
+        <h5 class="mrgin-rght topmargin-none">
+            added by {{creator.name}}
+        </h5>
+    </div>
+</div>
+<br><br>
+
+<br><br>
+
+
+<br>
+<br> {{team.description}}
+
+<br> {% endblock %}
