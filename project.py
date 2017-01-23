@@ -320,6 +320,22 @@ def editSport(sport_id):
         return render_template('editsport.html', editedSport=editedSport)
 
 
+@app.route('/sport/<int:sport_id>/delete/', methods=['GET', 'POST'])
+def deleteSport(sport_id):
+    sportToDelete = session.query(Sport).filter_by(id=sport_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    if sportToDelete.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to delete this Sport.');}</script><body onload='myFunction()''>"
+    if request.method == 'POST':
+        session.delete(sportToDelete)
+        flash('%s Successfully Deleted' % sportToDelete.name)
+        session.commit()
+        return redirect(url_for('showSports'))
+    else:
+        return render_template('delete.html', sport=sportToDelete)
+
+
 @app.route('/sport/<int:sport_id>/league')
 def showLeagues(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
@@ -366,15 +382,42 @@ def editLeague(sport_id, league_id):
             session.add(editedLeague)
             session.commit()
             # as league gets changed, we should also change teams' "league_name"
-            for team in teams:
-                team.league_name=editedLeague.name
-                session.add(team)
-                session.commit()
+            if teams:
+                for team in teams:
+                    team.league_name=editedLeague.name
+                    session.add(team)
+                    session.commit()
             flash('League Successfully Edited')
             return redirect(url_for('showLeagues', sport_id=sport_id))
     else:
         return render_template('editleague.html', sport_id=sport_id,
                                league_id=league_id, editedLeague=editedLeague)
+
+
+@app.route('/sport/<int:sport_id>/league/<int:league_id>/delete/',
+           methods=['GET', 'POST'])
+def deleteLeague(sport_id, league_id):
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    leagueToDelete = session.query(League).filter_by(id=league_id).one()
+    teams = session.query(Team).filter_by(league_name=leagueToDelete.name)
+    if 'username' not in login_session:
+        return redirect('/login')
+    if leagueToDelete.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to delete this League.');}</script><body onload='myFunction()''>"
+    if request.method == 'POST':
+        session.delete(leagueToDelete)
+        flash('%s Successfully Deleted' % leagueToDelete.name)
+        session.commit()
+        # as league gets changed, we should also change teams' "league_name"
+        if teams:
+            for team in teams:
+                team.league_name="No league"
+                session.add(team)
+                session.commit()
+        return redirect(url_for('showLeagues', sport_id=sport_id))
+    else:
+        return render_template('delete.html',
+                               league=leagueToDelete, sport=sport)
 
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/')
@@ -447,6 +490,24 @@ def editTeam(sport_id, team_id):
     else:
         return render_template('editteam.html', sport=sport, leagues=leagues,
                                editedTeam=editedTeam)
+
+
+@app.route('/sport/<int:sport_id>/team/<int:team_id>/\
+           delete', methods=['GET', 'POST'])
+def deleteTeam(sport_id, team_id):
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    teamToDelete = session.query(Team).filter_by(id=team_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
+    if teamToDelete.user_id != login_session['user_id']:
+        return "<script>function myFunction() {alert('You are not authorized to delete this Team.');}</script><body onload='myFunction()''>"
+    if request.method == 'POST':
+        session.delete(teamToDelete)
+        flash('%s Successfully Deleted' % teamToDelete.name)
+        session.commit()
+        return redirect(url_for('showTeams', sport_id=sport_id))
+    else:
+        return render_template('delete.html', sport=sport, team=teamToDelete)
 
 
 @app.route('/sport/<int:sport_id>/team/<int:team_id>')
