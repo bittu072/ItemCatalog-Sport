@@ -607,6 +607,50 @@ def disconnect():
         flash("You were not logged in")
 
 
+#JSON APIs to view Restaurant Information
+
+
+# list of all the sports
+@app.route('/sport/JSON')
+def sportsJSON():
+    sports = session.query(Sport).all()
+    return jsonify(sports= [r.serialize for r in sports])
+
+
+# list of leagues inside specifi sports
+@app.route('/sport/<int:sport_id>/league/JSON')
+def leaguesJSON(sport_id):
+    sport = session.query(Sport).filter_by(id = sport_id).one()
+    leagues = session.query(League).filter_by(sport_id = sport_id).all()
+    return jsonify(League=[i.serialize for i in leagues])
+
+
+# list of teams inside specific leagues
+@app.route('/sport/<int:sport_id>/league/<int:league_id>/teams/JSON')
+def leagueteamJSON(sport_id, league_id):
+    sport = session.query(Sport).filter_by(id = sport_id).one()
+    league = session.query(League).filter_by(id = league_id).one()
+    teams = session.query(Team).filter_by(league_name = league.name).all()
+    return jsonify(Team=[i.serialize for i in teams])
+    # return jsonify(Menu_Item = Menu_Item.serialize)
+
+
+# list of teams inside specific sports
+@app.route('/sport/<int:sport_id>/teams/JSON')
+def sportteamJSON(sport_id):
+    sport = session.query(Sport).filter_by(id = sport_id).one()
+    teams = session.query(Team).filter_by(sport_id = sport_id).all()
+    return jsonify(Team=[i.serialize for i in teams])
+
+# info of individual team
+@app.route('/team/<int:team_id>/JSON')
+def teamJSON(team_id):
+    # sport = session.query(Sport).filter_by(id = restaurant_id).one()
+    team = session.query(Team).filter_by(id = team_id).one()
+    return jsonify(team = team.serialize)
+
+
+
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
