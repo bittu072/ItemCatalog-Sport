@@ -177,5 +177,9 @@ h3 {
 }
 
 .error {
-	color: #6d0303
+	color: #6d0303;
+}
+
+.login-btn-margin {
+	margin-top: 5%;
 }

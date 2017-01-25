@@ -88,9 +88,7 @@ def fbconnect():
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = ('https://graph.facebook.com/oauth/access_token?grant_type=' +
-           'fb_exchange_token&client_id=%s&client_secret=%s&' +
-           'fb_exchange_token=%s' % (app_id, app_secret, access_token))
+    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
@@ -116,8 +114,7 @@ def fbconnect():
     login_session['access_token'] = stored_token
 
     # Get user picture
-    url = ('https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height' +
-           '=200&width=200' % token)
+    url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200&width=200' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -296,7 +293,7 @@ def gdisconnect():
 def showSports():
     sports = session.query(Sport).order_by(asc(Sport.name))
     if 'username' not in login_session:
-        return render_template('sport.html', sports=sports)
+        return render_template('publicsport.html', sports=sports)
     else:
         return render_template('sport.html', sports=sports)
 
@@ -306,7 +303,10 @@ def showSports():
 @app.route('/sport/<int:sport_id>/')
 def showSportPage(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
-    return render_template('sportpage.html', sport=sport)
+    if 'username' not in login_session:
+        return render_template('login.html', error="please login first!!!")
+    else:
+        return render_template('sportpage.html', sport=sport)
 
 # create new sport
 
@@ -423,7 +423,7 @@ def editLeague(sport_id, league_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     teams = session.query(Team).filter_by(league_name=editedLeague.name)
     if login_session['user_id'] != editedLeague.user_id:
-        return render_template('league.html',
+        return render_template('league.html', sport=sport,
                                error="You are not allowed to EDIT this League")
     if request.method == 'POST':
         if request.form['name']:
@@ -455,7 +455,7 @@ def deleteLeague(sport_id, league_id):
     if 'username' not in login_session:
         return redirect('/login')
     if leagueToDelete.user_id != login_session['user_id']:
-        return render_template('league.html',
+        return render_template('league.html', sport=sport,
                                error="You are not allowed to \
                                DELETE this League")
     if request.method == 'POST':
@@ -533,7 +533,7 @@ def editTeam(sport_id, team_id):
     leagues = session.query(League).filter_by(sport_id=sport_id).all()
     sport = session.query(Sport).filter_by(id=sport_id).one()
     if login_session['user_id'] != editedTeam.user_id:
-        return render_template('team.html',
+        return render_template('team.html', sport=sport,
                                error="You are not allowed to EDIT this Team")
     if request.method == 'POST':
         if request.form['teamname']:
@@ -561,7 +561,7 @@ def deleteTeam(sport_id, team_id):
     if 'username' not in login_session:
         return redirect('/login')
     if teamToDelete.user_id != login_session['user_id']:
-        return render_template('team.html',
+        return render_template('team.html', sport=sport,
                                error="You are not allowed to DELETE this Team")
     if request.method == 'POST':
         session.delete(teamToDelete)
