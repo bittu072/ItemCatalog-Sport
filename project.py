@@ -1,9 +1,11 @@
 # only google plus login
-from flask import Flask, render_template, request, redirect,jsonify, url_for, flash
-app = Flask(__name__)
+from flask import Flask, render_template, request, redirect
+from flask import jsonify, url_for, flash
+
 
 from flask import session as login_session
-import random, string
+import random
+import string
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
@@ -16,12 +18,13 @@ from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Sport, League, Team, User
 
+app = Flask(__name__)
 
 CLIENT_ID = json.loads(
-    open('client_secrets.json','r').read())['web']['client_id']
+    open('client_secrets.json', 'r').read())['web']['client_id']
 
 
-#Connect to Database and create database session
+# Connect to Database and create database session
 engine = create_engine('sqlite:///sports.db')
 Base.metadata.bind = engine
 
@@ -29,6 +32,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 # usefull functions
+
 
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
@@ -84,8 +88,9 @@ def fbconnect():
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
-        app_id, app_secret, access_token)
+    url = ('https://graph.facebook.com/oauth/access_token?grant_type=' +
+           'fb_exchange_token&client_id=%s&client_secret=%s&' +
+           'fb_exchange_token=%s' % (app_id, app_secret, access_token))
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
@@ -93,7 +98,6 @@ def fbconnect():
     userinfo_url = "https://graph.facebook.com/v2.4/me"
     # strip expire tag from access token
     token = result.split("&")[0]
-
 
     url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
@@ -106,12 +110,14 @@ def fbconnect():
     login_session['email'] = data["email"]
     login_session['facebook_id'] = data["id"]
 
-    # The token must be stored in the login_session in order to properly logout, let's strip out the information before the equals sign in our token
+    # The token mst be stored in d login_session in order to properly logout,
+    # let's strip out the information before the equals sign in our token
     stored_token = token.split("=")[1]
     login_session['access_token'] = stored_token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height=200&width=200' % token
+    url = ('https://graph.facebook.com/v2.4/me/picture?%s&redirect=0&height' +
+           '=200&width=200' % token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -145,7 +151,8 @@ def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    url = ('https://graph.facebook.com/%s/permissions?access_token=%s'
+           % (facebook_id, access_token))
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
@@ -255,30 +262,32 @@ def gdisconnect():
     print 'User name is: '
     print login_session['username']
     if access_token is None:
- 	print 'Access Token is None'
-    	response = make_response(json.dumps('Current user not connected.'), 401)
-    	response.headers['Content-Type'] = 'application/json'
-    	return response
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+        print 'Access Token is None'
+        response = make_response(json.dumps('Current user not connected.'),
+                                 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    url = ('https://accounts.google.com/o/oauth2/revoke?token=%s'
+           % login_session['access_token'])
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     print 'result is '
     print result
     if result['status'] == '200':
-	del login_session['access_token']
-    	del login_session['gplus_id']
-    	del login_session['username']
-    	del login_session['email']
-    	del login_session['picture']
-    	response = make_response(json.dumps('Successfully disconnected.'), 200)
-    	response.headers['Content-Type'] = 'application/json'
-    	return response
+        del login_session['access_token']
+        del login_session['gplus_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
     else:
 
     	response = make_response(json.dumps('Failed to revoke token \
                                          for given user.', 400))
-    	response.headers['Content-Type'] = 'application/json'
-    	return response
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
 # show list of all the sports
 
@@ -326,7 +335,7 @@ def editSport(sport_id):
         return redirect('/login')
     if editedSport.user_id != login_session['user_id']:
         return render_template('sport.html',
-                        error="You are not allowed to EDIT it")
+                               error="You are not allowed to EDIT it")
 
     if request.method == 'POST':
         if request.form['name']:
@@ -350,7 +359,7 @@ def deleteSport(sport_id):
         return redirect('/login')
     if sportToDelete.user_id != login_session['user_id']:
         return render_template('sport.html',
-                        error="You are not allowed to DELETE it")
+                               error="You are not allowed to DELETE it")
     if request.method == 'POST':
         session.delete(sportToDelete)
         flash('%s Successfully Deleted' % sportToDelete.name)
@@ -381,7 +390,7 @@ def showLeagues(sport_id):
     if 'username' not in login_session:
         return redirect('/login')
     return render_template('league.html', leagues=leagues,
-                               sport=sport, creator=creator)
+                           sport=sport, creator=creator)
 
 # create new league
 
@@ -392,8 +401,9 @@ def newLeague(sport_id):
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
-        newLeague = League(name=request.form['leaguename'], sport_id = sport_id,
-                          user_id=login_session['user_id'])
+        newLeague = League(name=request.form['leaguename'],
+                           sport_id=sport_id,
+                           user_id=login_session['user_id'])
         session.add(newLeague)
         flash('New Sport %s Successfully added' % newLeague.name)
         session.commit()
@@ -414,16 +424,17 @@ def editLeague(sport_id, league_id):
     teams = session.query(Team).filter_by(league_name=editedLeague.name)
     if login_session['user_id'] != editedLeague.user_id:
         return render_template('league.html',
-                        error="You are not allowed to EDIT this League")
+                               error="You are not allowed to EDIT this League")
     if request.method == 'POST':
         if request.form['name']:
             editedLeague.name = request.form['name']
             session.add(editedLeague)
             session.commit()
-            # as league gets changed, we should also change teams' "league_name"
+            # as league gets changed,
+            # we should also change teams' "league_name"
             if teams:
                 for team in teams:
-                    team.league_name=editedLeague.name
+                    team.league_name = editedLeague.name
                     session.add(team)
                     session.commit()
             flash('League Successfully Edited')
@@ -445,7 +456,8 @@ def deleteLeague(sport_id, league_id):
         return redirect('/login')
     if leagueToDelete.user_id != login_session['user_id']:
         return render_template('league.html',
-                        error="You are not allowed to DELETE this League")
+                               error="You are not allowed to \
+                               DELETE this League")
     if request.method == 'POST':
         session.delete(leagueToDelete)
         flash('%s Successfully Deleted' % leagueToDelete.name)
@@ -453,7 +465,7 @@ def deleteLeague(sport_id, league_id):
         # as league gets changed, we should also change teams' "league_name"
         if teams:
             for team in teams:
-                team.league_name="No league"
+                team.league_name = "No league"
                 session.add(team)
                 session.commit()
         return redirect(url_for('showLeagues', sport_id=sport_id))
@@ -462,6 +474,7 @@ def deleteLeague(sport_id, league_id):
                                league=leagueToDelete, sport=sport)
 
 # show teams only in appropriate league
+
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/')
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/team')
@@ -473,12 +486,13 @@ def showTeamsLeague(sport_id, league_id):
     if 'username' not in login_session:
         return redirect('/login')
     return render_template('teamleague.html', teams=teams,
-                               league=league, sport=sport, creator=creator)
+                           league=league, sport=sport, creator=creator)
 
 # create new team
 
 
-@app.route('/sport/<int:sport_id>/<int:league_id>/team/new', methods=['GET', 'POST'])
+@app.route('/sport/<int:sport_id>/<int:league_id>/team/new',
+           methods=['GET', 'POST'])
 def newTeam(sport_id, league_id):
     if 'username' not in login_session:
         return redirect('/login')
@@ -486,23 +500,23 @@ def newTeam(sport_id, league_id):
     leagues = session.query(League).filter_by(sport_id=sport_id).all()
     if request.method == 'POST':
         newTeam = Team(name=request.form['teamname'],
-                    description=request.form['description'],
-                    league_name=request.form['leaguename'],
-                    sport_id = sport_id,
-                    user_id=login_session['user_id'])
+                       description=request.form['description'],
+                       league_name=request.form['leaguename'],
+                       sport_id=sport_id,
+                       user_id=login_session['user_id'])
         session.add(newTeam)
         # flash('New Sport %s Successfully added' % newTeam.name)
         session.commit()
-        if not league_id==0:
+        if not league_id == 0:
             return redirect(url_for('showTeamsLeague', sport_id=sport_id,
                             league_id=league_id))
         else:
             return redirect(url_for('showTeams', sport_id=sport_id))
     else:
-        if not league_id==0:
+        if not league_id == 0:
             league_name = getLeagueName(league_id)
             return render_template('newteam.html', sport=sport,
-                               league_name=league_name, leagues=leagues)
+                                   league_name=league_name, leagues=leagues)
         else:
             return render_template('newteam.html', sport=sport,
                                    leagues=leagues)
@@ -520,7 +534,7 @@ def editTeam(sport_id, team_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     if login_session['user_id'] != editedTeam.user_id:
         return render_template('team.html',
-                        error="You are not allowed to EDIT this Team")
+                               error="You are not allowed to EDIT this Team")
     if request.method == 'POST':
         if request.form['teamname']:
             editedTeam.name = request.form['teamname']
@@ -548,7 +562,7 @@ def deleteTeam(sport_id, team_id):
         return redirect('/login')
     if teamToDelete.user_id != login_session['user_id']:
         return render_template('team.html',
-                        error="You are not allowed to DELETE this Team")
+                               error="You are not allowed to DELETE this Team")
     if request.method == 'POST':
         session.delete(teamToDelete)
         flash('%s Successfully Deleted' % teamToDelete.name)
@@ -568,7 +582,7 @@ def showTeampage(sport_id, team_id):
     if 'username' not in login_session:
         return redirect('/login')
     return render_template('teampage.html', team=team,
-                               sport=sport, creator=creator)
+                           sport=sport, creator=creator)
 
 # show all the teams in appropriate sport without considering leagues
 
@@ -581,7 +595,7 @@ def showTeams(sport_id):
     if 'username' not in login_session:
         return redirect('/login')
     return render_template('team.html', teams=teams,
-                               sport=sport, creator=creator)
+                           sport=sport, creator=creator)
 
 # Disconnect based on provider
 
@@ -607,30 +621,30 @@ def disconnect():
         flash("You were not logged in")
 
 
-#JSON APIs to view Restaurant Information
+# JSON APIs to view Restaurant Information
 
 
 # list of all the sports
 @app.route('/sport/JSON')
 def sportsJSON():
     sports = session.query(Sport).all()
-    return jsonify(sports= [r.serialize for r in sports])
+    return jsonify(sports=[r.serialize for r in sports])
 
 
-# list of leagues inside specifi sports
+# list of leagues inside specific sports
 @app.route('/sport/<int:sport_id>/league/JSON')
 def leaguesJSON(sport_id):
-    sport = session.query(Sport).filter_by(id = sport_id).one()
-    leagues = session.query(League).filter_by(sport_id = sport_id).all()
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    leagues = session.query(League).filter_by(sport_id=sport_id).all()
     return jsonify(League=[i.serialize for i in leagues])
 
 
 # list of teams inside specific leagues
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/teams/JSON')
 def leagueteamJSON(sport_id, league_id):
-    sport = session.query(Sport).filter_by(id = sport_id).one()
-    league = session.query(League).filter_by(id = league_id).one()
-    teams = session.query(Team).filter_by(league_name = league.name).all()
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    league = session.query(League).filter_by(id=league_id).one()
+    teams = session.query(Team).filter_by(league_name=league.name).all()
     return jsonify(Team=[i.serialize for i in teams])
     # return jsonify(Menu_Item = Menu_Item.serialize)
 
@@ -638,20 +652,21 @@ def leagueteamJSON(sport_id, league_id):
 # list of teams inside specific sports
 @app.route('/sport/<int:sport_id>/teams/JSON')
 def sportteamJSON(sport_id):
-    sport = session.query(Sport).filter_by(id = sport_id).one()
-    teams = session.query(Team).filter_by(sport_id = sport_id).all()
+    sport = session.query(Sport).filter_by(id=sport_id).one()
+    teams = session.query(Team).filter_by(sport_id=sport_id).all()
     return jsonify(Team=[i.serialize for i in teams])
 
 # info of individual team
+
+
 @app.route('/team/<int:team_id>/JSON')
 def teamJSON(team_id):
     # sport = session.query(Sport).filter_by(id = restaurant_id).one()
-    team = session.query(Team).filter_by(id = team_id).one()
-    return jsonify(team = team.serialize)
-
+    team = session.query(Team).filter_by(id=team_id).one()
+    return jsonify(team=team.serialize)
 
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     app.debug = True
-    app.run(host = '0.0.0.0', port = 5000)
+    app.run(host='0.0.0.0', port=5000)
