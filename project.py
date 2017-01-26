@@ -6,6 +6,7 @@ from flask import jsonify, url_for, flash
 from flask import session as login_session
 import random
 import string
+import os
 
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
@@ -673,5 +674,6 @@ if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
     # always turn off debugging
     # when the application moves to production environment.
-    app.debug = True
-    app.run(host='0.0.0.0', port=5000)
+    app.debug = False
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
