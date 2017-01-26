@@ -18,6 +18,10 @@ from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Sport, League, Team, User
 
+# imports for function and decorators of login authentication
+from functools import wraps
+from flask import g, request, redirect, url_for
+
 app = Flask(__name__)
 
 CLIENT_ID = json.loads(
@@ -59,6 +63,20 @@ def getUserID(email):
         return user.id
     except:
         return None
+
+# login authentication
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'email' in login_session:
+            return f(*args, **kwargs)
+        else:
+            return render_template('login0.html',
+                                   error="Login first!!!! \
+                                   You are not allowed to access it")
+    return decorated_function
 
 # login function
 
@@ -301,20 +319,17 @@ def showSports():
 
 
 @app.route('/sport/<int:sport_id>/')
+@login_required
 def showSportPage(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
-    if 'username' not in login_session:
-        return render_template('login.html', error="please login first!!!")
-    else:
-        return render_template('sportpage.html', sport=sport)
+    return render_template('sportpage.html', sport=sport)
 
 # create new sport
 
 
 @app.route('/sport/new/', methods=['GET', 'POST'])
+@login_required
 def newSport():
-    if 'username' not in login_session:
-        return redirect('/login')
     if request.method == 'POST':
         newSport = Sport(name=request.form['name'],
                          user_id=login_session['user_id'])
@@ -329,10 +344,9 @@ def newSport():
 
 
 @app.route('/sport/<int:sport_id>/edit/', methods=['GET', 'POST'])
+@login_required
 def editSport(sport_id):
     editedSport = session.query(Sport).filter_by(id=sport_id).one()
-    if 'username' not in login_session:
-        return redirect('/login')
     if editedSport.user_id != login_session['user_id']:
         return render_template('sport.html',
                                error="You are not allowed to EDIT it")
@@ -351,12 +365,11 @@ def editSport(sport_id):
 
 
 @app.route('/sport/<int:sport_id>/delete/', methods=['GET', 'POST'])
+@login_required
 def deleteSport(sport_id):
     sportToDelete = session.query(Sport).filter_by(id=sport_id).one()
     leagues = session.query(League).filter_by(sport_id=sport_id).all()
     teams = session.query(Team).filter_by(sport_id=sport_id).all()
-    if 'username' not in login_session:
-        return redirect('/login')
     if sportToDelete.user_id != login_session['user_id']:
         return render_template('sport.html',
                                error="You are not allowed to DELETE it")
@@ -383,12 +396,11 @@ def deleteSport(sport_id):
 
 
 @app.route('/sport/<int:sport_id>/league')
+@login_required
 def showLeagues(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     leagues = session.query(League).filter_by(sport_id=sport_id).all()
     creator = getUserInfo(sport.user_id)
-    if 'username' not in login_session:
-        return redirect('/login')
     return render_template('league.html', leagues=leagues,
                            sport=sport, creator=creator)
 
@@ -396,10 +408,9 @@ def showLeagues(sport_id):
 
 
 @app.route('/sport/<int:sport_id>/league/new', methods=['GET', 'POST'])
+@login_required
 def newLeague(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
-    if 'username' not in login_session:
-        return redirect('/login')
     if request.method == 'POST':
         newLeague = League(name=request.form['leaguename'],
                            sport_id=sport_id,
@@ -416,9 +427,8 @@ def newLeague(sport_id):
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/edit',
            methods=['GET', 'POST'])
+@login_required
 def editLeague(sport_id, league_id):
-    if 'username' not in login_session:
-        return redirect('/login')
     editedLeague = session.query(League).filter_by(id=league_id).one()
     sport = session.query(Sport).filter_by(id=sport_id).one()
     teams = session.query(Team).filter_by(league_name=editedLeague.name)
@@ -448,12 +458,11 @@ def editLeague(sport_id, league_id):
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/delete/',
            methods=['GET', 'POST'])
+@login_required
 def deleteLeague(sport_id, league_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     leagueToDelete = session.query(League).filter_by(id=league_id).one()
     teams = session.query(Team).filter_by(league_name=leagueToDelete.name)
-    if 'username' not in login_session:
-        return redirect('/login')
     if leagueToDelete.user_id != login_session['user_id']:
         return render_template('league.html', sport=sport,
                                error="You are not allowed to \
@@ -478,13 +487,12 @@ def deleteLeague(sport_id, league_id):
 
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/')
 @app.route('/sport/<int:sport_id>/league/<int:league_id>/team')
+@login_required
 def showTeamsLeague(sport_id, league_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     league = session.query(League).filter_by(id=league_id).one()
     teams = session.query(Team).filter_by(league_name=league.name).all()
     creator = getUserInfo(league.user_id)
-    if 'username' not in login_session:
-        return redirect('/login')
     return render_template('teamleague.html', teams=teams,
                            league=league, sport=sport, creator=creator)
 
@@ -493,9 +501,8 @@ def showTeamsLeague(sport_id, league_id):
 
 @app.route('/sport/<int:sport_id>/<int:league_id>/team/new',
            methods=['GET', 'POST'])
+@login_required
 def newTeam(sport_id, league_id):
-    if 'username' not in login_session:
-        return redirect('/login')
     sport = session.query(Sport).filter_by(id=sport_id).one()
     leagues = session.query(League).filter_by(sport_id=sport_id).all()
     if request.method == 'POST':
@@ -526,9 +533,8 @@ def newTeam(sport_id, league_id):
 
 @app.route('/sport/<int:sport_id>/team/<int:team_id>/\
            edit', methods=['GET', 'POST'])
+@login_required
 def editTeam(sport_id, team_id):
-    if 'username' not in login_session:
-        return redirect('/login')
     editedTeam = session.query(Team).filter_by(id=team_id).one()
     leagues = session.query(League).filter_by(sport_id=sport_id).all()
     sport = session.query(Sport).filter_by(id=sport_id).one()
@@ -555,11 +561,10 @@ def editTeam(sport_id, team_id):
 
 @app.route('/sport/<int:sport_id>/team/<int:team_id>/\
            delete', methods=['GET', 'POST'])
+@login_required
 def deleteTeam(sport_id, team_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     teamToDelete = session.query(Team).filter_by(id=team_id).one()
-    if 'username' not in login_session:
-        return redirect('/login')
     if teamToDelete.user_id != login_session['user_id']:
         return render_template('team.html', sport=sport,
                                error="You are not allowed to DELETE this Team")
@@ -575,12 +580,11 @@ def deleteTeam(sport_id, team_id):
 
 
 @app.route('/sport/<int:sport_id>/team/<int:team_id>')
+@login_required
 def showTeampage(sport_id, team_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     team = session.query(Team).filter_by(id=team_id).one()
     creator = getUserInfo(team.user_id)
-    if 'username' not in login_session:
-        return redirect('/login')
     return render_template('teampage.html', team=team,
                            sport=sport, creator=creator)
 
@@ -588,12 +592,11 @@ def showTeampage(sport_id, team_id):
 
 
 @app.route('/sport/<int:sport_id>/teams')
+@login_required
 def showTeams(sport_id):
     sport = session.query(Sport).filter_by(id=sport_id).one()
     teams = session.query(Team).filter_by(sport_id=sport_id).all()
     creator = getUserInfo(sport.user_id)
-    if 'username' not in login_session:
-        return redirect('/login')
     return render_template('team.html', teams=teams,
                            sport=sport, creator=creator)
 

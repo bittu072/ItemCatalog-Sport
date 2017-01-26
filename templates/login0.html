@@ -1,0 +1,15 @@
+{% extends "header2.html" %} {% block header %}{% endblock %} {% block body %}
+<br>
+<br> {% if error %}
+<div class="alert alert-danger" id='infor' role="alert">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> {{error}}
+</div>
+{% endif %}
+<br>
+<br>
+<div class="row text-center">
+        <a href="{{url_for('showLogin')}}" class="btn button-txt" style="text-decoration: none;">
+            Go to login Page
+        </a>
+</div>
+{% endblock %}
